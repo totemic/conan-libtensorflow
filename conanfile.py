@@ -3,7 +3,7 @@
 
 import os
 from conans import ConanFile, tools
-
+from os.path import join, dirname, realpath
 
 class LibTensorflowConan(ConanFile):
     name = "libtensorflow"
@@ -14,7 +14,6 @@ class LibTensorflowConan(ConanFile):
     topics = ("conan", "tensorflow", "libtensorflow")
     homepage = "https://github.com/tensorflow/tensorflow"
     url = "http://github.com/hardsetting/conan-libtensorflow"
-    tensorflow_location="/Users/jens/Develop/jetson/tensorflow/"
     license = "Apache License 2.0"
     description = "Tensorflow C API library."
     exports = ["LICENSE.md"]
@@ -34,7 +33,15 @@ class LibTensorflowConan(ConanFile):
         return "libtensorflow-%s-%s-%s-%s" % (gpuname, osname, str(self.settings.arch), str(self.version))
 
     def package(self):
-        prefix = self.tensorflow_location + self.triplet_name()
+        if 'TF_ROOT' in os.environ:
+            tensorflow_location = os.environ['TF_ROOT']
+        else:
+            tensorflow_location = os.environ['HOME'] + "/Develop/jetson/tensorflow/"
+            # tensorflow_location = dirname(realpath(__file__))
+            # raise RuntimeError('Please specifiy TF_ROOT in your environment.')
+
+        prefix = join(tensorflow_location, self.triplet_name())
+        print('Prefix: ', prefix)
         # copy the non-symlink versions first to avoid conan error when copying symlinks first
         self.copy(pattern="*.so."+str(self.version), dst="lib", src=prefix+"/lib", symlinks=True)
         self.copy(pattern="*.so.1", dst="lib", src=prefix+"/lib", symlinks=True)
