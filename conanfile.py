@@ -35,6 +35,9 @@ class LibTensorflowConan(ConanFile):
     def package(self):
         if 'TF_ROOT' in os.environ:
             tensorflow_location = os.environ['TF_ROOT']
+        elif 'CONAN_USER_HOME' in os.environ:
+            # we pass this variable through docker
+            tensorflow_location = os.environ['CONAN_USER_HOME'] + "/Develop/jetson/tensorflow/"
         else:
             tensorflow_location = os.environ['HOME'] + "/Develop/jetson/tensorflow/"
             # tensorflow_location = dirname(realpath(__file__))
